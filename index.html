@@ -1,42 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplica Rex</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-    <link rel="stylesheet" href="estilos/style.css">
-    <link rel="icon" href="imagenes/ilustracion-dinosaurio-tyrannosaurus-rex-estilo-dibujos-animados_99025-68.webp">
-</head>
-<body id="body">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgileMatch</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="estilos/style.css" />
+    <link
+      rel="icon"
+      href="imagenes/ilustracion-dinosaurio-tyrannosaurus-rex-estilo-dibujos-animados_99025-68.webp"
+    />
+  </head>
+  <body>
+    <main class="container-fluid">
+      <h1
+        class="display-1 text-center mt-5 fw-bolder bg-warning rounded-pill shadow-lg"
+        id="titulo"
+      >
+        AgileMatch
+      </h1>
 
-    <main class="container-fluid pt-5 ">
-        <h1 class=" display-1 text-center mt-5 fw-bolder bg-warning rounded-pill shadow-lg" id="titulo">MULTIPLICA REX</h1>
-        <h2 class="text-center fw-bolder">Una forma divertida de aprender las tablas.</h2>
-        
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col">
-                    <a href="nombre.html">
-                        <button class="btn btn-danger rounded border border-4 border-light shadow-lg" id="btn_empezar">Empezar</button>
-                    </a>
-                </div>
+      <h2>
+        Bienvenido a AgileMatch, una plataforma interactiva diseñada para
+        aprender metodologías ágiles de forma divertida. A través de un juego
+        inspirado en <b>“100 mexicanos dijeron”</b>, pondrás a prueba tus
+        conocimientos respondiendo preguntas relacionadas con conceptos ágiles.
+        ¡Mientras más aciertes con las respuestas más comunes o valoradas, más
+        puntos obtendrás! Ideal para estudiantes, equipos en formación o
+        cualquier persona interesada en agilidad.
+      </h2>
+      <div class="botonesInicio">
+        <button
+          type="button"
+          id="btn_comenzar"
+          class="btn btn-success"
+          onclick="window.location.href='./nombre.html'"
+        >
+          Comenzar a jugar
+        </button>
+        <button
+          id="btn_instrucciones"
+          type="button"
+          class="btn btn-info"
+          data-bs-toggle="modal"
+          data-bs-target="#exampleModal"
+        >
+          ¿Cómo se juega?
+        </button>
+
+        <div
+          class="modal fade"
+          id="exampleModal"
+          tabindex="-1"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">
+                  Instrucciones de juego
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body" id="texto_instrucciones">
+                <h1>🕹 ¿Cómo se juega AgileMatch?</h1>
+                <ol>
+                  <li>
+                    <b>Lee la pregunta</b>: Se te mostrará una frase o pregunta
+                    relacionada con metodologías ágiles (por ejemplo: “¿Una
+                    ceremonia común en Scrum?”).
+                  </li>
+                  <li>
+                    <b>Escribe una respuesta</b>: En el campo de texto, ingresa
+                    una palabra que creas que es una de las respuestas más
+                    comunes o relevantes.
+                  </li>
+                  <li>
+                    <b>Recibe tu puntajeRecibe tu puntaje</b>: Si tu respuesta
+                    coincide con alguna de las palabras que tenemos en nuestra
+                    base (ordenadas por relevancia), ganarás puntos. Las
+                    respuestas más valoradas otorgan más puntos.
+                  </li>
+                  <li>
+                    <b>Suma y avanza</b>: Tu puntaje se acumula a lo largo del
+                    juego. ¡Intenta acertar tantas respuestas como puedas!
+                  </li>
+                  <li>
+                    <b> Aprende jugando</b>: Con cada ronda, aprenderás o
+                    reforzarás conceptos clave de metodologías ágiles de manera
+                    divertida e interactiva.
+                  </li>
+                </ol>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  data-bs-dismiss="modal"
+                >
+                  Entendido!
+                </button>
+              </div>
             </div>
+          </div>
         </div>
-    
-        
-        
-        
+      </div>
     </main>
+  </body>
 
-
-
-    
-    
-</body>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"
+    integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk"
+    crossorigin="anonymous"
+  ></script>
 </html>
