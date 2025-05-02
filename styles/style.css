@@ -17,16 +17,20 @@ body {
 
 @font-face {
   font-family: fuente_titulo;
-  src: url(../fuentes/OpenSansItalic.ttf);
+  src: url(../fonts/OpenSansItalic.ttf);
 }
 
 @font-face {
   font-family: fuente_texto_general;
-  src: url(../fuentes/PTSans-Regular.ttf);
+  src: url(../fonts/PTSans-Regular.ttf);
 }
 
-main {
-  margin: 20px;
+header {
+  padding: 10px;
+  background-color: yellow;
+  color: rgb(0, 0, 0);
+  height: 4rem;
+  border: 2px solid black;
 }
 
 p,
@@ -75,13 +79,6 @@ a {
   font-size: 15px;
 }
 
-#nombre_usuario {
-  width: 100%;
-  height: 70px;
-  font-size: 40px;
-}
-
-#nombre_usuario,
 #select_nivel {
   width: 100%;
   height: 70px;
@@ -93,18 +90,19 @@ a {
 }
 
 #btn_guardar_nombre {
-  width: 100%;
+  margin: 10px;
   height: 70px;
   font-size: 25px;
   font-weight: bolder;
+  border-radius: 15px;
 }
 
 #row_nombre {
-  margin-top: 200px;
-  margin-bottom: 150px;
-  height: 50%;
-  width: 80%;
-  margin-left: 10%;
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  align-items: center;
+  margin: 2rem;
 }
 
 #menu_niveles {
@@ -133,6 +131,52 @@ a {
   margin-left: 20%;
 }
 
+.nombreHeader {
+  display: flex;
+  background-color: green;
+  border-radius: 15px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  width: 80%;
+  margin: 20px auto;
+  padding: 5px;
+}
+
+.nombreInput {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.nombreContainer {
+  margin: 20px auto;
+  padding: 10px;
+  background-color: lightgray;
+  width: 40%;
+  border-radius: 20px;
+  border: 3px solid black;
+  height: 400px;
+}
+
+.nombreInput input {
+  border: 3px solid black;
+  border-radius: 20px;
+}
+
+.nombreInput button,
+input {
+  font-size: 20px;
+}
+
+#nombre_usuario {
+  margin: 20px;
+  padding: 10px;
+}
+
 h2 {
   color: black;
 }
@@ -141,9 +185,22 @@ h2 {
   .empezar {
     width: 40%;
   }
+
+  .nombreHeader {
+    width: 80%;
+  }
+
+  .nombreContainer {
+    width: 80%;
+    padding: 15px;
+  }
+
+  .nombreInput input {
+    width: 100%;
+  }
 }
 
-@media (min-width: 700px) {
+@media (min-width: 768px) {
   .empezar {
     width: 15%;
   }
