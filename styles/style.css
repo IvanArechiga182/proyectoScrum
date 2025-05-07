@@ -4,14 +4,6 @@
 }
 
 body {
-  /* background-image: repeating-linear-gradient(
-    0deg,
-    #8383ac,
-    #8383ac 1.5px,
-    transparent 1.5px,
-    transparent
-  );
-  background-size: 32px 32px; */
   background-color: #1a1a2e;
 }
 
@@ -34,15 +26,18 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
   background-color: #0f3460;
   color: #ffffff;
-  height: 5rem;
-  border: 2px solid white;
+  height: 4rem;
+  border: 3px solid white;
+}
+
+header h1 {
+  margin: 10px;
 }
 
 #textoDescripcion {
-  font-size: 35px;
+  font-size: 27px;
   color: white;
 }
 
@@ -72,22 +67,32 @@ a {
 
 #btn_comenzar {
   border-radius: 15px;
-  padding: 10px;
   margin: 10px;
   font-family: fuente_texto_general;
   font-size: 20px;
   font-weight: bold;
-  background-color: firebrick;
+  background-color: #ffb400;
+  color: #0f3460;
+}
+
+#btn_comenzar:hover {
+  background-color: #e09b00;
+  color: #ffffff;
 }
 
 #btn_instrucciones {
   border-radius: 15px;
-  margin: 20px;
+  margin: 10px;
   font-family: fuente_texto_general;
   font-size: 20px;
   font-weight: bold;
-  color: white;
-  background-color: fuchsia;
+  color: #0f3460;
+  background-color: #e0eafc;
+}
+
+#btn_instrucciones:hover {
+  background-color: #d0def5;
+  color: #0d2c53;
 }
 
 #texto_instrucciones h1 {
@@ -96,6 +101,18 @@ a {
 
 #texto_instrucciones li {
   font-size: 15px;
+}
+
+.inicioContainer {
+  width: 40%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  border: 4px solid #0f3460;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px auto;
 }
 
 #btn_guardar_nombre {
@@ -134,17 +151,18 @@ a {
   width: 40%;
   border-radius: 20px;
   border: 3px solid #0f3460;
-  height: 400px;
+  height: 320px;
 }
 
 .nombreInput input {
   border: 3px solid black;
   border-radius: 20px;
+  font-size: 20px;
 }
 
 .nombreInput button,
 input {
-  margin-top: 50px;
+  margin-top: 30px;
   font-size: 20px;
 }
 
@@ -157,21 +175,58 @@ h2 {
   color: black;
 }
 /*Codigo exclusivo para estilos de la pantalla inicial del juego pantallaInicialJuego.html*/
+
+.areaJuegoContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.infoOportunidades {
+  width: 30%;
+  padding: 5px;
+  background-color: black;
+  text-align: center;
+  border-radius: 10px;
+  border: 3px solid white;
+  font-size: 20px;
+}
+
+.infoOportunidades h4 {
+  color: yellow;
+}
+
 .seccionPreguntas {
+  font-size: 25px;
   margin: 30px auto;
   background-color: #16213e;
-  width: 60%;
+  width: 40%;
   height: 650px;
   border-radius: 15px;
   flex-direction: column;
   border: 4px solid #0f3460;
 }
 
-#puntajeRonda {
+#puntajeRonda,
+#puntajeGlobal {
   font-family: fuente_puntaje;
+  display: flex;
+  justify-content: center;
+  color: black;
 }
 
-#seccionPreguntas {
+#puntajeRonda.mostrar,
+#puntajeGlobal.mostrar {
+  background-color: lavender;
+  border-radius: 20px;
+  border: 3px solid black;
+  padding: 10px;
+  text-align: center;
+}
+
+#seccionPreguntas,
+#infoOportunidades {
   color: #011627;
   visibility: hidden;
   opacity: 0;
@@ -188,10 +243,23 @@ h2 {
   transition: 1s ease-in;
 }
 
+#infoOportunidades.mostrar {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.25s ease-in-out, visibility 0s linear 0s;
+  color: white;
+}
+
 #rondaHeader {
+  visibility: hidden;
+  color: white;
   text-align: center;
   padding: 10px;
   font-weight: bold;
+}
+
+#rondaHeader.mostrar {
+  visibility: visible;
 }
 
 #pregunta {
@@ -204,6 +272,8 @@ h2 {
 }
 
 .areaRespuestas {
+  font-family: fuente_puntaje;
+  word-spacing: 4px;
   background-color: #39ff14;
   padding: 20px;
   font-size: 25px;
@@ -238,13 +308,35 @@ h2 {
 .areaJuego button {
   padding: 5px;
   border-radius: 10px;
-  margin-top: 80px;
+  margin-top: 30px;
   background-color: violet;
 }
 
 .areaJuego button:hover {
   background-color: blueviolet;
   color: white;
+}
+
+#UIFeedback {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  color: white;
+  visibility: hidden;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  color: red;
+  border-radius: 10px;
+}
+
+#UIFeedback.exitoso {
+  color: #39ff14;
+}
+
+#UIFeedback.visible {
+  visibility: visible;
+  opacity: 1;
 }
 
 #temporizador {
@@ -308,14 +400,17 @@ h2 {
   left: 5px;
 }
 
-#puntajeRonda.mostrar {
-  background-color: lavender;
-  border-radius: 20px;
-  border: 3px solid black;
-  padding: 10px;
-}
 /*MEDIA QUERIES PARA RESPONSIVE DESIGN*/
 @media (max-width: 476px) {
+  .inicioContainer {
+    width: 90%;
+  }
+
+  #textoDescripcion {
+    margin: 5px;
+    font-size: 20px;
+  }
+
   .empezar {
     width: 40%;
   }
@@ -325,22 +420,45 @@ h2 {
   }
 
   .nombreContainer {
+    font-size: 20px;
     width: 80%;
     padding: 15px;
+    height: 350px;
   }
+
+  .nombreInput input {
+    border: 3px solid black;
+    border-radius: 20px;
+    font-size: 15px;
+  }
+
+  /* .nombreContainer {
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #16213e;
+    width: 40%;
+    border-radius: 20px;
+    border: 3px solid #0f3460;
+    height: 320px;
+  } */
 
   .nombreInput input {
     width: 100%;
   }
 
   header {
-    height: 7rem;
+    height: 6rem;
     text-align: center;
   }
 
   .seccionPreguntas {
     width: 90%;
-    height: 680px;
+    height: 580px;
+    font-size: 20px;
+  }
+
+  #UIFeedback {
+    width: 80%;
   }
 
   .areaJuego {
@@ -355,9 +473,23 @@ h2 {
   #temporizador {
     width: 30%;
   }
+
+  .infoOportunidades {
+    font-size: 5px;
+    margin: 0 auto;
+    width: 90%;
+    flex-wrap: wrap;
+    text-align: center;
+    margin: 10px;
+    font-size: 13px;
+  }
 }
 
 @media (min-width: 768px) {
+  .inicioContainer {
+    width: 65%;
+  }
+
   .empezar {
     width: 15%;
   }

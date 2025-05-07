@@ -20,33 +20,45 @@
     </header>
     <main>
       <div class="topHeader">
-        <h1 id="rondaHeader"></h1>
-        <h2 id="puntajeRonda"></h2>
+        <h1 id="rondaHeader">a</h1>
+        <h3 id="UIFeedback"></h3>
+        <br />
         <button id="btnIniciarJuego" type="button" onclick="startGame()">
           comenzar a jugar
         </button>
       </div>
-      <section class="seccionPreguntas" id="seccionPreguntas">
-        <h2 id="pregunta"></h2>
-        <h2 id="temporizador"><span id="textoTemporizador"></span></h2>
-        <div class="areaRespuestas">
-          <h2>RESPUESTAS</h2>
-          <ol>
-            <li id="primerLugar">--------</li>
-            <li id="segundoLugar">--------</li>
-            <li id="tercerLugar">--------</li>
-            <li id="cuartoLugar">--------</li>
-          </ol>
-        </div>
-        <div class="areaJuego">
-          <input
-            type="text"
-            id="respuestaUsuario"
-            placeholder="Ingresa tu respuesta"
-          />
-          <button id="btnVerificarRespuesta">Responder</button>
-        </div>
-      </section>
+      <div class="areaJuegoContainer" id="areaJuegoContainer">
+        <section class="infoOportunidades" id="infoOportunidades">
+          <p id="puntajeRonda"></p>
+          <p id="puntajeGlobal"></p>
+          <p>Oportunidades esta pregunta</p>
+          <h4 id="opPregunta"></h4>
+          <p>Oportunidades de ronda</p>
+          <h4 id="opRonda"></h4>
+        </section>
+
+        <section class="seccionPreguntas" id="seccionPreguntas">
+          <p id="pregunta"></p>
+          <p id="temporizador"><span id="textoTemporizador"></span></p>
+          <div class="areaRespuestas">
+            <h2>RESPUESTAS</h2>
+            <ol id="listaRespuestas">
+              <li id="primerLugar">--------</li>
+              <li id="segundoLugar">--------</li>
+              <li id="tercerLugar">--------</li>
+              <li id="cuartoLugar">--------</li>
+            </ol>
+          </div>
+          <div class="areaJuego">
+            <input
+              type="text"
+              id="respuestaUsuario"
+              placeholder="Ingresa tu respuesta"
+            />
+            <button id="btnVerificarRespuesta">Responder</button>
+          </div>
+        </section>
+      </div>
     </main>
   </body>
 
