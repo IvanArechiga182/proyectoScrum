@@ -7,7 +7,7 @@ if (playerName) {
   ).textContent = `¡Hola ${playerName}, bienvenido a AgileMatch!`;
 }
 
-//este bloque de codigo limpia el input de asnwers cuando se recarga la pagina
+//este bloque de codigo limpia el input de answers cuando se recarga la pagina
 window.onload = function () {
   // Limpiar todos los inputs al cargar la pagina
   const inputs = document.querySelectorAll("input");
@@ -20,10 +20,11 @@ let currentRound = 1;
 let globalScore = 0;
 let roundScore = 0;
 let questionOpportunities = 2;
-let actualRoundPoints = 0;
 let questionPoints = 0;
 let globalOpportunities = 2;
 let questionLosses = 0;
+let isPositiveFeedback = false;
+let correctAnsweredWords = [];
 //Este bloque de codigo funciona para bloquear el acceso a la pagina del juego inicial
 //si se trata de acceder sin haber ingresado un playerName mediante la url directa
 window.addEventListener("DOMContentLoaded", () => {
@@ -39,45 +40,70 @@ window.addEventListener("DOMContentLoaded", () => {
 function startGame() {
   showGameBoard();
   showTimer();
+  updateOpportunities(questionOpportunities, globalOpportunities);
 }
 //esta funcion es para mostrar el area de juego una vez empezado
 function showGameBoard() {
   document.getElementById("btnIniciarJuego").style.display = "none";
   document.getElementById("puntajeRonda").style.display = "flex";
-  document.getElementById(
-    "puntajeRonda"
-  ).textContent = `PUNTAJE DE RONDA: ${roundScore}`;
+  updateScores(roundScore, globalScore);
+  // document.getElementById(
+  //   "puntajeRonda"
+  // ).textContent = `PUNTAJE DE RONDA: ${roundScore}`;
+  // document.getElementById(
+  //   "puntajeGlobal"
+  // ).textContent = `PUNTAJE DE RONDA: ${roundScore}`;
   const div = document.getElementById("seccionPreguntas");
   const puntajeDiv = document.getElementById("puntajeRonda");
+  const infoOportunidades = document.getElementById("infoOportunidades");
+  const rondaHeader = document.getElementById("rondaHeader");
+  const puntajeGlobalDiv = document.getElementById("puntajeGlobal");
   isGameStarted = true;
   div.classList.add("mostrar");
   puntajeDiv.classList.add("mostrar");
+  infoOportunidades.classList.add("mostrar");
+  rondaHeader.classList.add("mostrar");
+  puntajeGlobalDiv.classList.add("mostrar");
 }
 
 let activeTimer = null;
-let isFirstQuestion = true;
 let questionIndex = null;
 //esta funcion sirve para mostrar y actualizar el temporizador, asi como actualizar la mecanica de juego
 
 function showTimer() {
+  if (globalOpportunities == 0 && roundScore >= 20) {
+    alert(
+      `¡Te quedaste sin oportunidades suficientes para continuar!, pero con ${roundScore} pasas  a la siguiente ronda!`
+    );
+    currentRound++;
+    nextRound(currentRound);
+  } else if (globalOpportunities == 0) {
+    alert("¡Te quedaste sin oportunidades suficientes para continuar!");
+    restartGame();
+    return;
+  }
+
+  if (!isGameStarted) return;
+
+  document.getElementById("rondaHeader").innerHTML = `RONDA ${currentRound}`;
+  document.getElementById("respuestaUsuario").value = "";
+
   if (activeTimer) clearInterval(activeTimer);
 
-  if (questionIndex === null) {
-    questionIndex = selectQuestion(
-      currentRound,
-      questionOpportunities,
-      actualRoundPoints,
-      isFirstQuestion
-    );
-    isFirstQuestion = false;
+  if (questionOpportunities === 0 || correctAnsweredWords.length === 4) {
+    questionOpportunities = 2;
+    questionIndex = null;
   }
-  console.log("op. de preguntas desde showTimer: " + questionOpportunities);
-  let remaining = 8;
+
+  if (questionIndex === null) {
+    questionIndex = selectQuestion(currentRound);
+  }
+
+  let remaining = 35;
   activeTimer = setInterval(() => {
     let timerText = (document.getElementById("textoTemporizador").textContent =
       remaining + "s");
     remaining--;
-
     updateTimerStyle(timerText);
 
     if (remaining < 0) {
@@ -86,24 +112,19 @@ function showTimer() {
 
       const response = getUserResponse();
       if (!response?.trim()) {
-        if (globalOpportunities > 0) {
-          questionOpportunities--;
-          alert(
-            `¡Tiempo agotado! No ingresaste ninguna respuesta, te quedan ${questionOpportunities} oportunidad(es) para esta pregunta`
-          );
-          if (questionOpportunities == 0) {
+        questionOpportunities--;
+        let msg = `¡Tiempo agotado! No ingresaste ninguna respuesta`;
+        showUserUiFeedback(msg, isPositiveFeedback);
+        if (questionOpportunities == 0) {
+          questionLosses++;
+          if (questionLosses == 2) {
+            questionLosses = 0;
             globalOpportunities--;
-            questionLosses++;
-            questionIndex = null;
           }
-          console.log("op de pregunta: " + questionOpportunities);
-          console.log("preguntas perdidas: " + questionLosses);
-          showTimer(globalOpportunities, currentRound);
-          resetTimerStyles();
-        } else {
-          alert(`¡Te quedaste sin oportunidades de ronda! Inténtalo de nuevo`);
-          restartGame();
         }
+        updateOpportunities(questionOpportunities, globalOpportunities);
+        showTimer();
+        resetTimerStyles();
       }
     }
   }, 1000);
@@ -114,15 +135,19 @@ function showTimer() {
     btn.onclick = () => {
       const points = checkAnswer(questionIndex);
       if (points !== undefined) {
-        questionPoints = points;
-        actualRoundPoints += points;
-        globalScore += points;
+        roundScore += points;
         clearInterval(activeTimer);
         activeTimer = null;
-        showTimer(globalOpportunities);
+        updateRoundScore(roundScore);
+        showTimer();
       }
     };
   }
+}
+
+function updateOpportunities(questionOp, roundOp) {
+  document.getElementById("opPregunta").textContent = `${questionOp}`;
+  document.getElementById("opRonda").textContent = `${roundOp}`;
 }
 
 function updateTimerStyle(tiempoRestante) {
@@ -130,13 +155,11 @@ function updateTimerStyle(tiempoRestante) {
 
   if (tiempoRestante === "15s") {
     textoTemporizador.classList.add("advertencia");
-    console.log(textoTemporizador);
   }
 
   if (tiempoRestante === "10s") {
     resetTimerStyles();
     textoTemporizador.classList.add("critico");
-    console.log(textoTemporizador);
   }
 }
 
@@ -149,129 +172,166 @@ function resetTimerStyles() {
 //esta funcion complementaria de restartGame() sirve para ocultar area de juego y mostrar el boton
 //para iniciar a jugar de nuevo
 function hideGameBoard() {
+  document.getElementById("rondaHeader").classList.remove("mostrar");
   document.getElementById("seccionPreguntas").classList.remove("mostrar");
   document.getElementById("btnIniciarJuego").style.display = "flex"; // vuelve a mostrar el boton
   document.getElementById("puntajeRonda").style.display = "none";
+  document.getElementById("infoOportunidades").classList.remove("mostrar");
+  document.getElementById("puntajeGlobal").classList.remove("mostrar");
 }
 
-//En esta parte se definen los arrays que contienen las preguntas y asnwers de cada ronda, en cada ronda
+//Esta funcion sirve para mostrarle al usuario feedback en color rojo por default
+//para el feedback negativo y se cambia en cuestion de feedbackStatus a verde
+//si este viene en true y al final reinicia a false
+function showUserUiFeedback(template, feedbackStatus) {
+  const userFeedbackArea = document.getElementById("UIFeedback");
+
+  userFeedbackArea.textContent = template;
+  userFeedbackArea.classList.add("visible");
+
+  if (feedbackStatus) {
+    userFeedbackArea.classList.add("exitoso");
+  }
+
+  setTimeout(() => {
+    userFeedbackArea.classList.remove("visible");
+
+    setTimeout(() => {
+      userFeedbackArea.style.visibility = "hidden";
+      userFeedbackArea.classList.remove("exitoso");
+    }, 500);
+  }, 2000);
+  userFeedbackArea.style.visibility = "visible";
+  isPositiveFeedback = false;
+}
+
+//Esta funcion sirve para que al pasar de pregunta se reinicie el tablero de la respuestas ingresadas
+function restartWordTable() {
+  correctAnsweredWords = [];
+  document.getElementById("primerLugar").textContent = "--------";
+  document.getElementById("segundoLugar").textContent = "--------";
+  document.getElementById("tercerLugar").textContent = "--------";
+  document.getElementById("cuartoLugar").textContent = "--------";
+}
+
+//En esta parte se definen los arrays que contienen las preguntas y answers de cada ronda, en cada ronda
 //el orden de aparicion de las preguntas va a ser aleatoria pero el indice del objeto respuetas
 //equivale a la popularity de la response, entre mas bajo el indice mas points debe otorgar
 const round1 = [
   {
     question:
       "¿Que valor del manifiesto agil se enfoca en el equipo y su interaccion?",
-    asnwers: ["personas", "comunicacion", "colaboracion", "equipo"],
+    answers: ["personas", "comunicacion", "colaboracion", "equipo"],
   },
   {
     question:
       "¿Que se prefiere sobre los procesos extensivos en el manifiesto agil?",
-    asnwers: ["software", "funcional", "producto", "entrega"],
+    answers: ["software", "funcional", "producto", "entrega"],
   },
   {
     question: "¿Que se prioriza sobre la documentacion extensiva?",
-    asnwers: ["comunicacion", "colaboracion", "conversacion", "interaccion"],
+    answers: ["comunicacion", "colaboracion", "conversacion", "interaccion"],
   },
   {
     question: "¿Que se valora sobre la negociacion de contratos?",
-    asnwers: ["colaboracion", "cliente", "flexibilidad", "adaptabilidad"],
+    answers: ["colaboracion", "cliente", "flexibilidad", "adaptabilidad"],
   },
   {
     question: "¿Que aspecto se prefiere sobre seguir un plan rigido?",
-    asnwers: ["cambio", "adaptacion", "response", "flexibilidad"],
+    answers: ["cambio", "adaptacion", "response", "flexibilidad"],
   },
 ];
 
 const round2 = [
   {
     question: "¿Quien es responsable de maximizar el valor del producto?",
-    asnwers: ["product owner", "dueño", "valor", "negocio"],
+    answers: ["product owner", "dueño", "valor", "negocio"],
   },
   {
     question: "¿Quien facilita al equipo y elimina impedimentos?",
-    asnwers: ["scrum master", "facilitador", "lider", "coach"],
+    answers: ["scrum master", "facilitador", "lider", "coach"],
   },
   {
     question: "¿Quien construye el incremento del producto en cada sprint?",
-    asnwers: ["desarrolladores", "equipo", "tecnicos", "programadores"],
+    answers: ["desarrolladores", "equipo", "tecnicos", "programadores"],
   },
   {
     question: "¿Que lista contiene todos los requerimientos del producto?",
-    asnwers: ["backlog", "requerimientos", "lista", "funcionalidades"],
+    answers: ["backlog", "requerimientos", "lista", "funcionalidades"],
   },
   {
     question:
       "¿Que evento se hace al final del sprint para revisar lo entregado?",
-    asnwers: ["revision", "demo", "retrospectiva", "entrega"],
+    answers: ["revision", "demo", "retrospectiva", "entrega"],
   },
 ];
 
 const round3 = [
   {
     question: "¿Como se llama el ciclo de trabajo en Scrum?",
-    asnwers: ["sprint", "iteracion", "ciclo", "desarrollo"],
+    answers: ["sprint", "iteracion", "ciclo", "desarrollo"],
   },
   {
     question: "¿Que evento se realiza cada dia para sincronizar al equipo?",
-    asnwers: ["daily", "scrum diario", "reunion", "standup"],
+    answers: ["daily", "scrum diario", "reunion", "standup"],
   },
   {
     question: "¿Que evento inicia el sprint y se planifica el trabajo?",
-    asnwers: ["planificacion", "sprint planning", "inicio", "kickoff"],
+    answers: ["planificacion", "sprint planning", "inicio", "kickoff"],
   },
   {
     question: "¿Que evento sirve para mejorar continuamente el proceso?",
-    asnwers: ["retrospectiva", "mejora", "revision", "cierre"],
+    answers: ["retrospectiva", "mejora", "revision", "cierre"],
   },
   {
     question: "¿Que se entrega al final del sprint como resultado?",
-    asnwers: ["incremento", "producto", "entrega", "funcionalidad"],
+    answers: ["incremento", "producto", "entrega", "funcionalidad"],
   },
 ];
 
 const round4 = [
   {
     question: "¿Que se busca entregar de forma frecuente en agil?",
-    asnwers: ["valor", "software", "producto", "funcionalidad"],
+    answers: ["valor", "software", "producto", "funcionalidad"],
   },
   {
     question: "¿Que es importante mantener entre los miembros del equipo?",
-    asnwers: ["comunicacion", "confianza", "colaboracion", "transparencia"],
+    answers: ["comunicacion", "confianza", "colaboracion", "transparencia"],
   },
   {
     question: "¿Que practica permite adaptar el proceso con regularidad?",
-    asnwers: ["retrospectiva", "mejora", "feedback", "ajuste"],
+    answers: ["retrospectiva", "mejora", "feedback", "ajuste"],
   },
   {
     question: "¿Que se usa para visualizar el flujo de trabajo?",
-    asnwers: ["tablero", "kanban", "tareas", "columnas"],
+    answers: ["tablero", "kanban", "tareas", "columnas"],
   },
   {
     question: "¿Que tecnica divide el trabajo en unidades manejables?",
-    asnwers: ["historias", "tareas", "tickets", "epicas"],
+    answers: ["historias", "tareas", "tickets", "epicas"],
   },
 ];
 
 const round5 = [
   {
     question: "¿Que marco agil permite escalar Scrum a grandes equipos?",
-    asnwers: ["SAFe", "Nexus", "LeSS", "Spotify"],
+    answers: ["SAFe", "Nexus", "LeSS", "Spotify"],
   },
   {
     question: "¿Que herramienta digital se usa comúnmente para boards agiles?",
-    asnwers: ["Jira", "Trello", "ClickUp", "Monday"],
+    answers: ["Jira", "Trello", "ClickUp", "Monday"],
   },
   {
     question: "¿Que tecnica ayuda a estimar el esfuerzo de las tareas?",
-    asnwers: ["planning poker", "points", "estimacion", "fibonacci"],
+    answers: ["planning poker", "points", "estimacion", "fibonacci"],
   },
   {
     question: "¿Que practica permite ver el avance en tiempo real?",
-    asnwers: ["burndown", "grafico", "seguimiento", "progreso"],
+    answers: ["burndown", "grafico", "seguimiento", "progreso"],
   },
   {
     question: "¿Que es fundamental recibir constantemente de los usuarios?",
-    asnwers: ["feedback", "retroalimentacion", "comentarios", "validacion"],
+    answers: ["feedback", "retroalimentacion", "comentarios", "validacion"],
   },
 ];
 
@@ -282,6 +342,16 @@ function getUserResponse() {
   return response;
 }
 
+function updateScores(rScore, gScore) {
+  document.getElementById(
+    "puntajeRonda"
+  ).textContent = `PUNTAJE RONDA: ${rScore}`;
+
+  document.getElementById(
+    "puntajeGlobal"
+  ).textContent = `PUNTAJE GLOBAL: ${gScore}`;
+}
+
 function updateRoundScore(roundScore) {
   document.getElementById(
     "puntajeRonda"
@@ -289,29 +359,72 @@ function updateRoundScore(roundScore) {
   return;
 }
 
-function nextRound(round) {
-  if (round < 5) {
-    alert(`Pasando a la ronda ${round + 1}...`);
-    actualRoundPoints = 0;
-  } else {
-    alert(
-      `¡Felicidades, completaste todas las rondas! Total: ${totalScore} puntos.`
-    );
-  }
-  return;
+function updateGlobalScore(globalScore) {
+  document.getElementById(
+    "puntajeGlobal"
+  ).textContent = `PUNTAJE GLOBAL: ${gScore}`;
 }
 
+function nextRound(round) {
+  let msg = "";
+  if (round > rounds.length) {
+    msg = `¡Felicidades, completaste todas las rondas! Total: ${globalScore} puntos.`;
+    alert(msg);
+    restartGame();
+    return;
+  }
+
+  if (globalOpportunities == 0) {
+    globalOpportunities++;
+    alert("Te regalamos 1 vida global más!");
+  }
+  msg = `¡Felicidades, completaste la ronda ${
+    round - 1
+  } Hiciste: ${roundScore} puntos.`;
+  alert(msg);
+  msg = `Pasando a la ronda ${round}...`;
+  alert(msg);
+  globalScore += roundScore;
+  roundScore = 0;
+  updateScores(roundScore, globalScore);
+  questionIndex = null;
+  showTimer();
+  return;
+}
 //esta funcion sirve para validar la response del usuario y otorgar puntos
+
 function checkAnswer(index) {
-  console.log("revisandoRespuesta");
-  let response = getUserResponse();
+  let msg = "";
+  let response = normalize(getUserResponse());
   if (response === "" || response === null) {
-    alert("No ingresaste ninguna respuesta!");
+    msg = `No ingresaste ninguna respuesta!`;
+    showUserUiFeedback(msg, isPositiveFeedback);
     return;
   }
 
   let popularity = getAnswerPopularity(currentRound, index, response);
-  if (popularity != null && popularity !== -1) {
+
+  if (popularity == null || popularity == -1) {
+    questionOpportunities--;
+    msg = `Esta respuesta no está entre las populares.
+    Tienes ${questionOpportunities} oportunidades más para esta pregunta.`;
+    isPositiveFeedback = false;
+    showUserUiFeedback(msg, isPositiveFeedback);
+    if (questionOpportunities == 0) {
+      questionLosses++;
+      if (questionLosses == 2) {
+        questionLosses = 0;
+        globalOpportunities--;
+      }
+    }
+    updateOpportunities(questionOpportunities, globalOpportunities);
+    document.getElementById("respuestaUsuario").value = "";
+    showTimer();
+    return;
+  }
+
+  if (!checkAnswerInBoard(response, correctAnsweredWords)) {
+    correctAnsweredWords.push(response);
     let earnedPoints = 0;
     switch (popularity) {
       case 0:
@@ -338,17 +451,18 @@ function checkAnswer(index) {
         earnedPoints = 0;
         break;
     }
-
-    roundScore += earnedPoints;
-    alert(`¡Bien hecho! Ganaste ${earnedPoints} puntos.`);
-    updateRoundScore(roundScore);
+    msg = `¡Bien hecho! Ganaste ${earnedPoints} puntos.`;
+    isPositiveFeedback = true;
+    showUserUiFeedback(msg, isPositiveFeedback);
     document.getElementById("respuestaUsuario").value = "";
-    return roundScore;
+    // showTimer();
+    return earnedPoints;
   } else {
-    alert(`Respuesta incorrecta.`);
-    questionOpportunities--;
+    msg = `Esta respuesta ya está en el tablero! No se otorgaron puntos`;
+    isPositiveFeedback = false;
+    showUserUiFeedback(msg, isPositiveFeedback);
+    return;
   }
-  console.log("oportunidades de pregunta: " + questionOpportunities);
 }
 
 function getAnswerPopularity(round, questionIndex, userResponse) {
@@ -356,86 +470,72 @@ function getAnswerPopularity(round, questionIndex, userResponse) {
   if (!roundQuestions || !roundQuestions[questionIndex]) {
     return -1;
   }
-  const answers = roundQuestions[questionIndex].asnwers;
+  const answers = roundQuestions[questionIndex].answers;
   const response = userResponse.trim().toLowerCase();
-  console.log(answers);
   return answers.findIndex((ans) => ans.toLowerCase() === response);
+}
+
+function normalize(str) {
+  return str
+    .normalize("NFD") // descompone letras con acentos
+    .replace(/[\u0300-\u036f]/g, "") // elimina los acentos
+    .toLowerCase(); // convierte a minúsculas
+}
+//Esta funcion sirve para revisar si la respuesta ingresada ya esta en el tablero de respuestas
+//y mostrar un feedback de que ya se contestó pero no quitar ninguna oportunidad.
+function checkAnswerInBoard(answer, answers) {
+  const normalizedAnswer = normalize(answer);
+  return answers.some((a) => normalize(a) === normalizedAnswer);
 }
 
 //esta funcion determina que pregunta aleatoria se va a mostrar dependiendo de la ronda en la que este actualmente
 //el jugador
 let latestQuestions = [];
-function selectQuestion(round, questionChances, roundPoints, isFirstQuestion) {
-  const currentRound = rounds[round - 1];
-  if (!currentRound) return;
+function selectQuestion(round) {
+  if (!round) return;
 
-  const availableQuestions = currentRound.filter(
+  const activeRound = rounds[round - 1];
+  const availableQuestions = activeRound.filter(
     (p) => !latestQuestions.includes(p.question)
   );
-
-  // Mostrar nueva pregunta si es la primera vez en la ronda
-  if (isFirstQuestion) {
-    const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-    const selectedQuestion = availableQuestions[randomIndex];
-    latestQuestions.push(selectedQuestion.question);
-
-    document.getElementById("pregunta").innerHTML = selectedQuestion.question;
-    console.log(`preguntas pasadas: ${latestQuestions}`);
-    return currentRound.findIndex(
-      (p) => p.question === selectedQuestion.question
-    );
-  }
-
-  // Si aún hay oportunidades para la pregunta actual, mantenerla
-  if (questionOpportunities > 0) {
-    return;
-  }
-
-  if (questionOpportunities == 0) {
-    console.log("SELECCIONANDO NUEVA PREGUNTA");
-
-    const availableQuestions = currentRound.filter(
-      (p) => !latestQuestions.includes(p.question)
-    );
-
-    if (availableQuestions.length === 0) {
-      alert(
-        `¡Ya se mostraron todas las preguntas de esta ronda! Terminaste la ronda ${round} con ${roundPoints} puntos.`
-      );
-      nextRound(currentRound);
-    }
+  if (availableQuestions.length === 0) {
+    setTimeout(() => {
+      alert(`¡Ya se mostraron todas las preguntas de esta ronda!`);
+      if (globalOpportunities > 0) {
+        currentRound++;
+        nextRound(currentRound);
+        return;
+      }
+    }, 600);
+    restartWordTable();
   }
 
   const randomIndex = Math.floor(Math.random() * availableQuestions.length);
   const selectedQuestion = availableQuestions[randomIndex];
   latestQuestions.push(selectedQuestion.question);
   document.getElementById("pregunta").innerHTML = selectedQuestion.question;
-  console.log(`preguntas pasadas: ${latestQuestions}`);
-  questionOpportunities = 2;
-  return currentRound.findIndex(
-    (p) => p.question === selectedQuestion.question
-  );
+  updateOpportunities(questionOpportunities, globalOpportunities);
+  restartWordTable();
+  return activeRound.findIndex((p) => p.question === selectedQuestion.question);
 }
 
 //esta funcion restaura al estado inicial la pagina para poder jugar de nuevo
 function restartGame() {
   isGameStarted = false;
-  isFirstQuestion = true;
   currentRound = 1;
   globalScore = 0;
   roundScore = 0;
-  questionOpportunities = 3;
+  questionOpportunities = 2;
   globalOpportunities = 2;
   actualRoundPoints = 0;
-  questionPoints = 0;
+  roundScore = 0;
   questionIndex = null;
   latestQuestions = [];
-  updateRoundScore(roundScore);
-  document.getElementById("respuestaUsuario").value = "";
-  // document.getElementById("temporizador").textContent = "0s";
+  questionLosses = 0;
   hideGameBoard();
+  restartWordTable();
+  if (activeTimer) {
+    clearInterval(activeTimer);
+    activeTimer = null;
+  }
 }
-
-//Este bloque de codigo selecciona una question para cada ronda, en total son 5 rounds con 5 preguntas
-//cada una, donde se tienen al menos 4 palabras clave donde se pueden ganar points, si al finalizar estos 4 turnos
-//no se encontro al menos una palabra clave, se pierde la partida
