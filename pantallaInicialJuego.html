@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AgileMatch</title>
+    <title>MethodsMatch</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -26,6 +26,12 @@
         <button id="btnIniciarJuego" type="button" onclick="startGame()">
           comenzar a jugar
         </button>
+      </div>
+      <div class="puntajeUsuario" id="puntajeUsuario">
+        <p id="puntajeAnterior"></p>
+        <br />
+        <p id="rachaPreguntasCorrectas"></p>
+        <p id="respuestasCorrectasIntroducidas"></p>
       </div>
       <div class="areaJuegoContainer" id="areaJuegoContainer">
         <section class="infoOportunidades" id="infoOportunidades">
@@ -78,5 +84,5 @@
     crossorigin="anonymous"
   ></script>
   <script></script>
-  <script src="js/pantallaInicialJuego.js"></script>
+  <script src="js/pantallaInicialJuego.js" defer></script>
 </html>

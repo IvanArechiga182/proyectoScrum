@@ -4,6 +4,6 @@ function empezar() {
     alert("Ingresa tu nombre primero");
   } else {
     sessionStorage.setItem("nombreUsuario", nombre);
-    window.location.href = "./pantallaInicialJuego.html";
+    window.location.href = "./informacionJuego.html";
   }
 }

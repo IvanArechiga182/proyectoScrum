@@ -4,7 +4,7 @@ const playerName = sessionStorage.getItem("nombreUsuario");
 if (playerName) {
   document.getElementById(
     "saludoInicial"
-  ).textContent = `¡Hola ${playerName}, bienvenido a AgileMatch!`;
+  ).textContent = `¡Hola ${playerName}, bienvenido a MethodsMatch!`;
 }
 
 //este bloque de codigo limpia el input de answers cuando se recarga la pagina
@@ -25,6 +25,9 @@ let globalOpportunities = 2;
 let questionLosses = 0;
 let isPositiveFeedback = false;
 let correctAnsweredWords = [];
+let correctAnswerStreak = 0;
+let latestAnswerStreak = 0;
+let totalCorrectAnswers = 0;
 //Este bloque de codigo funciona para bloquear el acceso a la pagina del juego inicial
 //si se trata de acceder sin haber ingresado un playerName mediante la url directa
 window.addEventListener("DOMContentLoaded", () => {
@@ -44,6 +47,7 @@ function startGame() {
 }
 //esta funcion es para mostrar el area de juego una vez empezado
 function showGameBoard() {
+  document.getElementById("puntajeUsuario").classList.remove("mostrar");
   document.getElementById("btnIniciarJuego").style.display = "none";
   document.getElementById("puntajeRonda").style.display = "flex";
   updateScores(roundScore, globalScore);
@@ -73,7 +77,7 @@ let questionIndex = null;
 function showTimer() {
   if (globalOpportunities == 0 && roundScore >= 20) {
     alert(
-      `¡Te quedaste sin oportunidades suficientes para continuar!, pero con ${roundScore} pasas  a la siguiente ronda!`
+      `¡Te quedaste sin oportunidades suficientes para continuar!, pero con ${roundScore} puntos pasas  a la siguiente ronda!`
     );
     currentRound++;
     nextRound(currentRound);
@@ -99,7 +103,7 @@ function showTimer() {
     questionIndex = selectQuestion(currentRound);
   }
 
-  let remaining = 35;
+  let remaining = 40;
   activeTimer = setInterval(() => {
     let timerText = (document.getElementById("textoTemporizador").textContent =
       remaining + "s");
@@ -117,6 +121,7 @@ function showTimer() {
         showUserUiFeedback(msg, isPositiveFeedback);
         if (questionOpportunities == 0) {
           questionLosses++;
+          correctAnswerStreak = 0;
           if (questionLosses == 2) {
             questionLosses = 0;
             globalOpportunities--;
@@ -136,6 +141,7 @@ function showTimer() {
       const points = checkAnswer(questionIndex);
       if (points !== undefined) {
         roundScore += points;
+        scrollFeedback();
         clearInterval(activeTimer);
         activeTimer = null;
         updateRoundScore(roundScore);
@@ -148,6 +154,14 @@ function showTimer() {
 function updateOpportunities(questionOp, roundOp) {
   document.getElementById("opPregunta").textContent = `${questionOp}`;
   document.getElementById("opRonda").textContent = `${roundOp}`;
+}
+
+function scrollFeedback() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  setTimeout(() => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }, 1000);
 }
 
 function updateTimerStyle(tiempoRestante) {
@@ -172,12 +186,30 @@ function resetTimerStyles() {
 //esta funcion complementaria de restartGame() sirve para ocultar area de juego y mostrar el boton
 //para iniciar a jugar de nuevo
 function hideGameBoard() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
   document.getElementById("rondaHeader").classList.remove("mostrar");
   document.getElementById("seccionPreguntas").classList.remove("mostrar");
   document.getElementById("btnIniciarJuego").style.display = "flex"; // vuelve a mostrar el boton
   document.getElementById("puntajeRonda").style.display = "none";
   document.getElementById("infoOportunidades").classList.remove("mostrar");
   document.getElementById("puntajeGlobal").classList.remove("mostrar");
+  document.getElementById("puntajeUsuario").classList.add("mostrar");
+  let puntajeTotalPartida;
+  if (globalScore == 0) {
+    puntajeTotalPartida = roundScore;
+  } else {
+    puntajeTotalPartida = globalScore;
+  }
+  document.getElementById(
+    "puntajeAnterior"
+  ).textContent = `PUNTAJE ANTERIOR: ${puntajeTotalPartida}`;
+  document.getElementById(
+    "rachaPreguntasCorrectas"
+  ).textContent = `MAYOR RACHA DE ACIERTOS: ${latestAnswerStreak}`;
+  document.getElementById(
+    "respuestasCorrectasIntroducidas"
+  ).textContent = `TOTAL DE ACIERTOS: ${totalCorrectAnswers}`;
+  restartWordTable();
 }
 
 //Esta funcion sirve para mostrarle al usuario feedback en color rojo por default
@@ -207,6 +239,7 @@ function showUserUiFeedback(template, feedbackStatus) {
 
 //Esta funcion sirve para que al pasar de pregunta se reinicie el tablero de la respuestas ingresadas
 function restartWordTable() {
+  totalCorrectAnswers += correctAnsweredWords.length;
   correctAnsweredWords = [];
   document.getElementById("primerLugar").textContent = "--------";
   document.getElementById("segundoLugar").textContent = "--------";
@@ -219,119 +252,183 @@ function restartWordTable() {
 //equivale a la popularity de la response, entre mas bajo el indice mas points debe otorgar
 const round1 = [
   {
-    question:
-      "¿Que valor del manifiesto agil se enfoca en el equipo y su interaccion?",
-    answers: ["personas", "comunicacion", "colaboracion", "equipo"],
+    question: "¿Qué tipo de marco es Scrum?",
+    answers: ["agil", "colaborativo", "flexible", "iterativo"],
   },
   {
-    question:
-      "¿Que se prefiere sobre los procesos extensivos en el manifiesto agil?",
-    answers: ["software", "funcional", "producto", "entrega"],
+    question: "¿Cuál es el objetivo principal de un Sprint?",
+    answers: [
+      "valor continuo",
+      "entrega funcional",
+      "trabajo técnico",
+      "planificación fija",
+    ],
   },
   {
-    question: "¿Que se prioriza sobre la documentacion extensiva?",
-    answers: ["comunicacion", "colaboracion", "conversacion", "interaccion"],
+    question: "¿Qué rol se encarga de priorizar el Product Backlog?",
+    answers: [
+      "Product Owner",
+      "Scrum Master",
+      "Development Team",
+      "Stakeholder",
+    ],
   },
   {
-    question: "¿Que se valora sobre la negociacion de contratos?",
-    answers: ["colaboracion", "cliente", "flexibilidad", "adaptabilidad"],
+    question: "¿Qué evento ocurre todos los días en Scrum?",
+    answers: [
+      "Daily Scrum",
+      "Sprint Planning",
+      "Sprint Review",
+      "Sprint Retrospective",
+    ],
   },
   {
-    question: "¿Que aspecto se prefiere sobre seguir un plan rigido?",
-    answers: ["cambio", "adaptacion", "response", "flexibilidad"],
+    question: "¿Qué artefacto representa el trabajo completado y funcional?",
+    answers: [
+      "Incremento",
+      "Sprint Backlog",
+      "Product Backlog",
+      "Daily Report",
+    ],
   },
 ];
 
 const round2 = [
   {
-    question: "¿Quien es responsable de maximizar el valor del producto?",
-    answers: ["product owner", "dueño", "valor", "negocio"],
+    question: "¿Qué guía usa cinco grupos de procesos?",
+    answers: ["PMBOK", "Scrum", "One Page", "Kanban"],
   },
   {
-    question: "¿Quien facilita al equipo y elimina impedimentos?",
-    answers: ["scrum master", "facilitador", "lider", "coach"],
-  },
-  {
-    question: "¿Quien construye el incremento del producto en cada sprint?",
-    answers: ["desarrolladores", "equipo", "tecnicos", "programadores"],
-  },
-  {
-    question: "¿Que lista contiene todos los requerimientos del producto?",
-    answers: ["backlog", "requerimientos", "lista", "funcionalidades"],
+    question: "¿Qué grupo de procesos viene después de Ejecución?",
+    answers: ["Monitoreo Control", "Cierre", "Inicio", "Planificación"],
   },
   {
     question:
-      "¿Que evento se hace al final del sprint para revisar lo entregado?",
-    answers: ["revision", "demo", "retrospectiva", "entrega"],
+      "¿Cuál área de conocimiento busca coordinación total del proyecto?",
+    answers: [
+      "Gestión Integración",
+      "Gestión Tiempo",
+      "Gestión Costos",
+      "Gestión Calidad",
+    ],
+  },
+  {
+    question: "¿Qué área se enfoca en identificar y analizar riesgos?",
+    answers: [
+      "Gestión Riesgos",
+      "Gestión Calidad",
+      "Gestión Integración",
+      "Gestión Comunicación",
+    ],
+  },
+  {
+    question: "¿Cuál es una diferencia clave entre Scrum y PMBOK?",
+    answers: [
+      "Scrum flexible",
+      "PMBOK Sprints",
+      "Scrum rígido",
+      "PMBOK informal",
+    ],
   },
 ];
 
 const round3 = [
   {
-    question: "¿Como se llama el ciclo de trabajo en Scrum?",
-    answers: ["sprint", "iteracion", "ciclo", "desarrollo"],
+    question: "¿Qué permite One Page Planning?",
+    answers: [
+      "resumen clave",
+      "plan detallado",
+      "control diario",
+      "entrega ágil",
+    ],
   },
   {
-    question: "¿Que evento se realiza cada dia para sincronizar al equipo?",
-    answers: ["daily", "scrum diario", "reunion", "standup"],
+    question: "¿Qué elementos incluye One Page Planning?",
+    answers: [
+      "objetivos clave",
+      "sprints diarios",
+      "backlog global",
+      "retrospectivas",
+    ],
   },
   {
-    question: "¿Que evento inicia el sprint y se planifica el trabajo?",
-    answers: ["planificacion", "sprint planning", "inicio", "kickoff"],
+    question: "¿Quién se beneficia más de One Page Planning?",
+    answers: [
+      "stakeholders externos",
+      "Scrum Master",
+      "Development Team",
+      "usuarios internos",
+    ],
   },
   {
-    question: "¿Que evento sirve para mejorar continuamente el proceso?",
-    answers: ["retrospectiva", "mejora", "revision", "cierre"],
+    question: "¿Qué tipo de herramienta es One Page Planning?",
+    answers: [
+      "herramienta complementaria",
+      "marco trabajo",
+      "evento ágil",
+      "guía formal",
+    ],
   },
   {
-    question: "¿Que se entrega al final del sprint como resultado?",
-    answers: ["incremento", "producto", "entrega", "funcionalidad"],
+    question: "¿Qué permite priorizar en One Page Planning?",
+    answers: ["requisitos", "eventos", "artefactos", "procesos"],
   },
 ];
 
 const round4 = [
   {
-    question: "¿Que se busca entregar de forma frecuente en agil?",
-    answers: ["valor", "software", "producto", "funcionalidad"],
+    question: "¿Qué enfoque es más útil en entornos cambiantes?",
+    answers: ["Scrum", "PMBOK", "One Page", "Waterfall"],
   },
   {
-    question: "¿Que es importante mantener entre los miembros del equipo?",
-    answers: ["comunicacion", "confianza", "colaboracion", "transparencia"],
+    question: "¿Qué enfoque es más rígido y estructurado?",
+    answers: ["PMBOK", "Scrum", "One Page", "Extreme"],
   },
   {
-    question: "¿Que practica permite adaptar el proceso con regularidad?",
-    answers: ["retrospectiva", "mejora", "feedback", "ajuste"],
+    question:
+      "¿Qué herramienta presenta la visión del proyecto en forma compacta?",
+    answers: ["One Page", "Scrum Board", "PMBOK Guía", "Sprint Review"],
   },
   {
-    question: "¿Que se usa para visualizar el flujo de trabajo?",
-    answers: ["tablero", "kanban", "tareas", "columnas"],
+    question: "¿Cuál permite sincronización diaria del equipo?",
+    answers: ["Scrum", "PMBOK", "Kanban", "One Page"],
   },
   {
-    question: "¿Que tecnica divide el trabajo en unidades manejables?",
-    answers: ["historias", "tareas", "tickets", "epicas"],
+    question: "¿Qué se recomienda usar para un plan largo y controlado?",
+    answers: ["PMBOK", "Scrum", "Kanban", "Lean"],
   },
 ];
 
 const round5 = [
   {
-    question: "¿Que marco agil permite escalar Scrum a grandes equipos?",
-    answers: ["SAFe", "Nexus", "LeSS", "Spotify"],
+    question: "¿Qué elemento contiene requisitos priorizados?",
+    answers: ["Product Backlog", "Sprint Backlog", "Daily Scrum", "Incremento"],
   },
   {
-    question: "¿Que herramienta digital se usa comúnmente para boards agiles?",
-    answers: ["Jira", "Trello", "ClickUp", "Monday"],
+    question: "¿Qué evento reflexiona y mejora al final del Sprint?",
+    answers: [
+      "Sprint Retrospective",
+      "Sprint Planning",
+      "Sprint Review",
+      "Daily Scrum",
+    ],
   },
   {
-    question: "¿Que tecnica ayuda a estimar el esfuerzo de las tareas?",
-    answers: ["planning poker", "points", "estimacion", "fibonacci"],
+    question: "¿Qué rol elimina obstáculos y facilita procesos?",
+    answers: ["Scrum Master", "Product Owner", "Stakeholder", "Team Leader"],
   },
   {
-    question: "¿Que practica permite ver el avance en tiempo real?",
-    answers: ["burndown", "grafico", "seguimiento", "progreso"],
+    question: "¿Qué parte del PMBOK analiza la calidad?",
+    answers: [
+      "Gestión Calidad",
+      "Gestión Alcance",
+      "Gestión Costos",
+      "Gestión Riesgos",
+    ],
   },
   {
-    question: "¿Que es fundamental recibir constantemente de los usuarios?",
-    answers: ["feedback", "retroalimentacion", "comentarios", "validacion"],
+    question: "¿Qué grupo de procesos marca el final de un proyecto?",
+    answers: ["Cierre", "Monitoreo Control", "Ejecución", "Inicio"],
   },
 ];
 
@@ -398,6 +495,7 @@ function checkAnswer(index) {
   let response = normalize(getUserResponse());
   if (response === "" || response === null) {
     msg = `No ingresaste ninguna respuesta!`;
+    scrollFeedback();
     showUserUiFeedback(msg, isPositiveFeedback);
     return;
   }
@@ -409,6 +507,8 @@ function checkAnswer(index) {
     msg = `Esta respuesta no está entre las populares.
     Tienes ${questionOpportunities} oportunidades más para esta pregunta.`;
     isPositiveFeedback = false;
+    correctAnswerStreak = 0;
+    scrollFeedback();
     showUserUiFeedback(msg, isPositiveFeedback);
     if (questionOpportunities == 0) {
       questionLosses++;
@@ -453,6 +553,11 @@ function checkAnswer(index) {
     }
     msg = `¡Bien hecho! Ganaste ${earnedPoints} puntos.`;
     isPositiveFeedback = true;
+    correctAnswerStreak++;
+    if (correctAnswerStreak > latestAnswerStreak) {
+      latestAnswerStreak = correctAnswerStreak;
+    }
+
     showUserUiFeedback(msg, isPositiveFeedback);
     document.getElementById("respuestaUsuario").value = "";
     // showTimer();
@@ -523,17 +628,18 @@ function selectQuestion(round) {
 function restartGame() {
   isGameStarted = false;
   currentRound = 1;
-  globalScore = 0;
-  roundScore = 0;
   questionOpportunities = 2;
   globalOpportunities = 2;
   actualRoundPoints = 0;
-  roundScore = 0;
   questionIndex = null;
   latestQuestions = [];
   questionLosses = 0;
   hideGameBoard();
-  restartWordTable();
+  latestAnswerStreak = 0;
+  correctAnswerStreak = 0;
+  totalCorrectAnswers = 0;
+  globalScore = 0;
+  roundScore = 0;
   if (activeTimer) {
     clearInterval(activeTimer);
     activeTimer = null;

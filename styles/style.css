@@ -33,7 +33,12 @@ header {
 }
 
 header h1 {
+  font-family: fuente_texto_general;
   margin: 10px;
+}
+
+#saludoInicialTexto {
+  font-size: 30px;
 }
 
 #textoDescripcion {
@@ -174,6 +179,84 @@ input {
 h2 {
   color: black;
 }
+
+/*Codigo exclusivo para pantalla de informacion sobre las metodologias*/
+.containerInformacion {
+  font-family: fuente_texto_general;
+  display: grid;
+  grid-template-columns: 1fr 0.3fr;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "scrum opp"
+    "pmbok pmbok";
+  gap: 1rem;
+  padding: 2em;
+}
+.containerInformacion p {
+  word-spacing: 0.2em;
+  font-size: 20px;
+  color: black;
+}
+
+.containerInformacion h1 {
+  text-align: center;
+}
+
+.scrum {
+  grid-area: scrum;
+  background-color: paleturquoise;
+  border-radius: 15px;
+  border: 3px solid white;
+}
+.opp {
+  grid-area: opp;
+  background-color: palegreen;
+  border-radius: 15px;
+  border: 3px solid white;
+}
+.pmbok {
+  grid-area: pmbok;
+  background-color: palevioletred;
+  border-radius: 15px;
+  border: 3px solid white;
+  width: 50%;
+  margin: 0 auto;
+}
+
+.scrum,
+.pmbok,
+.opp {
+  padding: 1em;
+}
+
+#btn-pasar-al-juego {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px auto;
+  font-size: 20px;
+}
+
+#avisoInformacion {
+  font-size: 35px;
+  text-align: center;
+  padding-top: 1em;
+  margin-bottom: 0;
+}
+
+.imagenesReferencia {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.imagenesReferencia img {
+  border-radius: 20px;
+  width: 250px;
+  height: 250px;
+}
+
 /*Codigo exclusivo para estilos de la pantalla inicial del juego pantallaInicialJuego.html*/
 
 .areaJuegoContainer {
@@ -181,6 +264,22 @@ h2 {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  gap: 1em;
+  flex-direction: column;
+}
+
+.puntajeUsuario {
+  font-size: 25px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 1em;
+  transition: 300ms ease-in;
+}
+
+#puntajeUsuario.mostrar {
+  display: flex;
 }
 
 .infoOportunidades {
@@ -406,6 +505,10 @@ h2 {
     width: 90%;
   }
 
+  #saludoInicialTexto {
+    font-size: 25px;
+  }
+
   #textoDescripcion {
     margin: 5px;
     font-size: 20px;
@@ -432,15 +535,23 @@ h2 {
     font-size: 15px;
   }
 
-  /* .nombreContainer {
-    margin: 20px auto;
-    padding: 10px;
-    background-color: #16213e;
-    width: 40%;
-    border-radius: 20px;
-    border: 3px solid #0f3460;
-    height: 320px;
-  } */
+  .containerInformacion {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "scrum"
+      "opp"
+      "pmbok";
+  }
+
+  .scrum,
+  .pmbok,
+  .opp {
+    padding: 0.5em;
+  }
+
+  .pmbok {
+    width: 100%;
+  }
 
   .nombreInput input {
     width: 100%;
